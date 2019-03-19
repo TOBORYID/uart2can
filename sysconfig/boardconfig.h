@@ -25,4 +25,6 @@
 #define SYS_MAIN_FLASH                      FLASH_TEXT
 #define SYS_MAIN_MEMORY                     SRAM
 
+#define BOOT_ENABLED                        0
+
 #endif /* BOARDCONFIG_H_ */

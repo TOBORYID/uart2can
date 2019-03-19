@@ -14,9 +14,12 @@ BuildPath = $(TopPath)/Build
 OutPath = $(TopPath)/Output
 
 # Include Dirs
-INCS = -I$(TopPath)/inc \
+INCS = -I$(TopPath)/apps \
+       -I$(TopPath)/startup \
        -I$(TopPath)/sysconfig \
-       -I$(TopPath)/kylink \
+       -I$(TopPath)/middleware/kylink \
+       -I$(TopPath)/driver/periph/ \
+       -I$(TopPath)/driver/device/ \
        -I$(TopPath)/driver/cmsis/device \
        -I$(TopPath)/driver/cmsis/core \
        -I$(TopPath)/driver/stdriver/inc \
@@ -86,9 +89,11 @@ all: $(ProjName).elf | $(BuildPath)
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include startup/subdir.mk
--include src/subdir.mk
--include kylink/subdir.mk
+-include apps/subdir.mk
+-include driver/device/subdir.mk
+-include driver/periph/subdir.mk
 -include driver/stdriver/subdir.mk
+-include middleware/kylink/subdir.mk
 -include subdir.mk
 -include objects.mk
 

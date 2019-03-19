@@ -8,19 +8,25 @@ S_SRCS += \
 ./startup/startup_stm32.s 
 
 C_SRCS += \
-./startup/stm32f0xx_it.c \
+./startup/start.c \
 ./startup/syscalls.c \
+./startup/TimerCounter.c \
+./startup/stm32f0xx_it.c \
 ./startup/system_stm32f0xx.c
 
 OBJS += \
 $(BuildPath)/startup/startup_stm32.o \
-$(BuildPath)/startup/stm32f0xx_it.o \
+$(BuildPath)/startup/start.o\
 $(BuildPath)/startup/syscalls.o \
+$(BuildPath)/startup/TimerCounter.o \
+$(BuildPath)/startup/stm32f0xx_it.o \
 $(BuildPath)/startup/system_stm32f0xx.o
 
 C_DEPS += \
-$(BuildPath)/startup/stm32f0xx_it.d \
+$(BuildPath)/startup/start.d\
 $(BuildPath)/startup/syscalls.d \
+$(BuildPath)/startup/TimerCounter.d \
+$(BuildPath)/startup/stm32f0xx_it.d \
 $(BuildPath)/startup/system_stm32f0xx.d
 
 OBJ_DIRS = $(sort $(dir $(OBJS)))

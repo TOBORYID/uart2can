@@ -47,20 +47,9 @@ static void CAN_MsgPrepare(void);
   * @param  None
   * @retval None
   */
-int main_app(void)
+void StartThread(void const * arg)
 {
-  /*!< At this stage the microcontroller clock setting is already configured, 
-       this is done through SystemInit() function which is called from startup
-       file (startup_stm32f0xx.s) before to branch to application main.
-       To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f0xx.c file
-     */
-	SystemCoreClockUpdate();
-
-	_TimeTicksInit();
-
 	LED_Init(); LED_R_ON(); LED_B_OFF();
-	Delay_Init();
 
 	CAN_If_Init();
 
