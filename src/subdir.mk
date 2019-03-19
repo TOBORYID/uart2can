@@ -9,7 +9,6 @@ C_SRCS += \
 ./src/CRC16.c \
 ./src/Delay.c \
 ./src/LED.c \
-./src/Maths.c \
 ./src/TOF.c \
 ./src/TimerCounter.c \
 ./src/UltraSonic.c \
@@ -22,7 +21,6 @@ $(BuildPath)/src/CAN.o \
 $(BuildPath)/src/CRC16.o \
 $(BuildPath)/src/Delay.o \
 $(BuildPath)/src/LED.o \
-$(BuildPath)/src/Maths.o \
 $(BuildPath)/src/TOF.o \
 $(BuildPath)/src/TimerCounter.o \
 $(BuildPath)/src/UltraSonic.o \
@@ -35,7 +33,6 @@ $(BuildPath)/src/CAN.d \
 $(BuildPath)/src/CRC16.d \
 $(BuildPath)/src/Delay.d \
 $(BuildPath)/src/LED.d \
-$(BuildPath)/src/Maths.d \
 $(BuildPath)/src/TOF.d \
 $(BuildPath)/src/TimerCounter.d \
 $(BuildPath)/src/UltraSonic.d \

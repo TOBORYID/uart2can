@@ -26,7 +26,6 @@
 "Build/src/CRC16.o"
 "Build/src/Delay.o"
 "Build/src/LED.o"
-"Build/src/Maths.o"
 "Build/src/TOF.o"
 "Build/src/TimerCounter.o"
 "Build/src/UltraSonic.o"
