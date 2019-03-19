@@ -20,7 +20,11 @@ static uint8_t _detect_step = 0;
 static uint8_t _utl_data_update = 0;
 static uint32_t _start_time = 0, _high_level_time = 0;
 #else
-static CommPackageDef *pRx = 0;
+static KYLINK_CORE_HANDLE USC_PORT_HANDLE;
+static kyLinkPackageDef *pRx = 0;
+
+static uint8_t read_len;
+static uint8_t read_buf[8];
 #endif
 
 /* Private function prototypes -----------------------------------------------*/
@@ -38,12 +42,12 @@ static void GPIO_Config(void);
 void UltDriverInit(void)
 {
 #if (USC_MODE == USC_MODE_ECHO)
-	TIM_Config();
-	GPIO_Config();
+  TIM_Config();
+  GPIO_Config();
 #else
-	uart2_init();
-	uart2_set_callback(kyLink_DecodeProcess);
-	pRx = GetRxPacket();
+  uart2_init();
+  kyLinkInit(&USC_PORT_HANDLE, NULL);
+  pRx = GetRxPackage(&USC_PORT_HANDLE);
 #endif
 }
 
@@ -61,9 +65,14 @@ uint8_t GetNewUltData(float *d)
 		return 1;
 	}
 #else
-	if(GotNewData()) {
-		*d = pRx->Packet.PacketData.USC_DIST_MM * 0.1f;
-		return 1;
+	if((read_len = uart2_pullBytes(read_buf, 8)) > 0) {
+		for(uint8_t idx = 0; idx < read_len; idx ++) {
+			kylink_decode(&USC_PORT_HANDLE, read_buf[idx]);
+		}
+		if(kyLinkCheckUpdate(&USC_PORT_HANDLE) == kyTRUE) {
+			*d = pRx->FormatData.PacketData.TypeData.USC_DIST_MM * 0.1f;
+			return 1;
+		}
 	}
 #endif
 	return 0;
@@ -77,23 +86,23 @@ uint8_t GetNewUltData(float *d)
   */
 static void TIM_Config(void)
 {
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef TIM_OCInitStructure;
-	GPIO_InitTypeDef GPIO_InitStructure;
+  TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+  TIM_OCInitTypeDef TIM_OCInitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* TIM2 clock enable */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+  /* TIM2 clock enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
-	/* GPIOA clock enable */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  /* GPIOA clock enable */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
-	/* TIM2_CH3 pin (PA.02) configuration */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+  /* TIM2_CH3 pin (PA.02) configuration */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
 
   /* Connect TIM pins to AF2 */
   GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_2);
@@ -107,7 +116,7 @@ static void TIM_Config(void)
   TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
   /* TIM2 PWM2 Mode configuration: Channel3 */
-	TIM_OCInitStructure.TIM_Pulse = 1;
+  TIM_OCInitStructure.TIM_Pulse = 1;
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
@@ -125,27 +134,27 @@ static void TIM_Config(void)
   */
 static void GPIO_Config(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	EXTI_InitTypeDef EXTI_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
 
-	/* Configure PA.03 pins as input mode */
+  /* Configure PA.03 pins as input mode */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	/* Connect EXTI3 Line to PA.03 pin */
+  /* Connect EXTI3 Line to PA.03 pin */
   SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource3);
 
-	/* Configure EXTI3 line */
+  /* Configure EXTI3 line */
   EXTI_InitStructure.EXTI_Line = EXTI_Line3;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
 
-	/* Enable and set EXTI2_3 Interrupt */
+  /* Enable and set EXTI2_3 Interrupt */
   NVIC_InitStructure.NVIC_IRQChannel = EXTI2_3_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPriority = 0x00;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -159,26 +168,26 @@ static void GPIO_Config(void)
   */
 void EXTI2_3_IRQHandler(void)
 {
-	if(EXTI_GetITStatus(EXTI_Line3) != RESET) {
-		/* Clear the EXTI line 3 pending bit */
-		EXTI_ClearITPendingBit(EXTI_Line3);
+  if(EXTI_GetITStatus(EXTI_Line3) != RESET) {
+    /* Clear the EXTI line 3 pending bit */
+    EXTI_ClearITPendingBit(EXTI_Line3);
 
-		if(_detect_step == 0) {
-			/* Rising Falling edge */
+    if(_detect_step == 0) {
+      /* Rising Falling edge */
       EXTI->RTSR |= EXTI_Line3;
       EXTI->FTSR |= EXTI_Line3;
 
-			_start_time = _Get_Micros();
+      _start_time = _Get_Micros();
 
-			_detect_step = 1;
-		} else if(_detect_step == 1) {
-			*(__IO uint32_t *)((uint32_t)EXTI_BASE + EXTI_Trigger_Rising) |= EXTI_Line3;
-			_high_level_time = _Get_Micros() - _start_time;
-			_utl_data_update = 1;
+      _detect_step = 1;
+    } else if(_detect_step == 1) {
+      *(__IO uint32_t *)((uint32_t)EXTI_BASE + EXTI_Trigger_Rising) |= EXTI_Line3;
+      _high_level_time = _Get_Micros() - _start_time;
+      _utl_data_update = 1;
 
-			_detect_step = 0;
-		}
-	}
+      _detect_step = 0;
+    }
+  }
 }
 #endif
 

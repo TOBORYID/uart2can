@@ -27,4 +27,6 @@
 
 #define BOOT_ENABLED                        0
 
+#define UART_RX_CACHE_SIZE                  88
+
 #endif /* BOARDCONFIG_H_ */

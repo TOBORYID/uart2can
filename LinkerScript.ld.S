@@ -99,6 +99,13 @@ SECTIONS
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
+  .usc_uart_cache (NOLOAD) :
+  {
+    . = ALIGN(4);
+    UART_RX_CACHE = .;
+    . = . + UART_RX_CACHE_SIZE;
+  } >SYS_MAIN_MEMORY
+
   /* Initialized data sections goes into RAM, load LMA copy after code */
   .data : 
   {

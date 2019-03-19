@@ -57,7 +57,6 @@ void StartThread(void const * arg)
 	uart2_init();
 	pRxMessage = GetCAN_RxMsg();
 #else
-	kyLink_Init();
 	TOFDriverInit();
 	UltDriverInit();
 

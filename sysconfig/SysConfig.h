@@ -14,7 +14,7 @@
 #include "boardconfig.h"
 #include "TimerCounter.h"
 
-#define CAN_MASTER_MODE                     (1)
+#define CAN_MASTER_MODE                     (0)
 
 #define PRINT_LOG_ENABLE                    (1)
 
@@ -37,6 +37,9 @@
 
 /* Interrupt Priority Table */
 #define SYSTEM_TIMER_INT_PRIORITY      (0)
+
+#define UART2_RX_INT_PRIORITY          (0)
+#define UART2_DMA_INT_PRIORITY         (0)
 
 #if SYSTICK_ENABLE
 #define SYSTICK_INT_PRIORITY           (3)

@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    GPIO/GPIO_IOToggle/stm32f0xx_it.c 
+  * @file    startup/stm32f0xx_it.c
   * @author  MCD Application Team
   * @version V1.4.0
   * @date    24-July-2014
@@ -29,14 +29,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_it.h"
-
-/** @addtogroup STM32F0xx_StdPeriph_Examples
-  * @{
-  */
-
-/** @addtogroup GPIO_IOToggle
-  * @{
-  */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -71,6 +63,7 @@ void HardFault_Handler(void)
   }
 }
 
+#if !FREERTOS_ENABLED
 /**
   * @brief  This function handles SVCall exception.
   * @param  None
@@ -89,6 +82,16 @@ void PendSV_Handler(void)
 {
 }
 
+/**
+  * @brief  This function handles SysTick Handler.
+  * @param  None
+  * @retval None
+  */
+void SysTick_Handler(void)
+{
+}
+#endif /* FREERTOS_ENABLED */
+
 /******************************************************************************/
 /*                 STM32F0xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
@@ -104,13 +107,5 @@ void PendSV_Handler(void)
 /*void PPP_IRQHandler(void)
 {
 }*/
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
