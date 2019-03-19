@@ -7,8 +7,21 @@
 S_SRCS += \
 ./startup/startup_stm32.s 
 
+C_SRCS += \
+./startup/stm32f0xx_it.c \
+./startup/syscalls.c \
+./startup/system_stm32f0xx.c
+
 OBJS += \
-$(BuildPath)/startup/startup_stm32.o 
+$(BuildPath)/startup/startup_stm32.o \
+$(BuildPath)/startup/stm32f0xx_it.o \
+$(BuildPath)/startup/syscalls.o \
+$(BuildPath)/startup/system_stm32f0xx.o
+
+C_DEPS += \
+$(BuildPath)/startup/stm32f0xx_it.d \
+$(BuildPath)/startup/syscalls.d \
+$(BuildPath)/startup/system_stm32f0xx.d
 
 OBJ_DIRS = $(sort $(dir $(OBJS)))
 
@@ -16,3 +29,8 @@ OBJ_DIRS = $(sort $(dir $(OBJS)))
 $(BuildPath)/startup/%.o: ./startup/%.s | $(OBJ_DIRS)
 	@echo ' AS $<'
 	$(AS) -mcpu=cortex-m0 -mthumb -mfloat-abi=soft $(INCS) -g -o "$@" "$<"
+
+# Each subdirectory must supply rules for building sources it contributes
+$(BuildPath)/startup/%.o: ./startup/%.c | $(OBJ_DIRS)
+	@echo ' CC $<'
+	$(CC) -mcpu=cortex-m0 -mthumb -mfloat-abi=soft $(DEFS) $(INCS) $(CFGS) -Os $(DBGS) -Wall -fmessage-length=0 -ffunction-sections -c -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"

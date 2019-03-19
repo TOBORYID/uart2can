@@ -1,30 +1,13 @@
 /*
-*****************************************************************************
+******************************************************************************
+**  File        : LinkerScript.ld.S
+**  Author		: kyChu
+**  Date        : 2019/2/27
+**  Abstract    : Linker script for STM32F042G6Ux Device from STM32F0 series
+**                FLASH: 32Kbytes mapped at address 0x08000000
+**                SRAM : 6Kbytes mapped at address 0x20000000
 **
-
-**  File        : LinkerScript.ld
-**
-**  Abstract    : Linker script for STM32F042K6Tx Device with
-**                32KByte FLASH, 6KByte RAM
-**
-**                Set heap size, stack size and stack location according
-**                to application requirements.
-**
-**                Set memory bank area and size if external memory is used.
-**
-**  Target      : STMicroelectronics STM32
-**
-**
-**  Distribution: The file is distributed as is, without any warranty
-**                of any kind.
-**
-**  (c)Copyright Ac6.
-**  You may use this file as-is or modify it according to the needs of your
-**  project. Distribution of this file (unmodified or modified) is not
-**  permitted. Ac6 permit registered System Workbench for MCU users the
-**  rights to distribute the assembled, compiled & linked contents of this
-**  file as part of an application binary file, provided that it is built
-**  using the System Workbench for MCU toolchain.
+**  Target      : STMicroelectronics STM32F042G6Ux
 **
 *****************************************************************************
 */
@@ -32,36 +15,39 @@
 /* Entry Point */
 ENTRY(Reset_Handler)
 
-/* Highest address of the user mode stack */
-_estack = 0x20001800;    /* end of RAM */
-/* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
+#include "boardconfig.h"
 
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 32K
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 6K
+  SRAM (xrw)      : ORIGIN = SYS_SRAM_ORIGIN, LENGTH = SYS_SRAM_LENGTH
+#if defined(SYS_BOOT_ORIGIN)
+  FLASH_BOOT (rx) : ORIGIN = SYS_BOOT_ORIGIN, LENGTH = SYS_BOOT_LENGTH
+#endif /* defined(SYS_BOOT_ORIGIN) */
+  FLASH_TEXT (rx) : ORIGIN = SYS_TEXT_ORIGIN, LENGTH = SYS_TEXT_LENGTH
 }
+
+/* Highest address of the user mode stack */
+_estack = ORIGIN(SYS_MAIN_MEMORY) + LENGTH(SYS_MAIN_MEMORY); /* end of RAM */
+
+/* Generate a link error if heap and stack don't fit into RAM */
+_Min_Heap_Size = SYS_HEAP_SIZE;       /* required amount of heap  */
+_Min_Stack_Size = SYS_STACK_SIZE;     /* required amount of stack */
 
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASH */
-  .isr_vector :
-  {
-    . = ALIGN(4);
-    KEEP(*(.isr_vector)) /* Startup code */
-    . = ALIGN(4);
-  } >FLASH
-
+  /* The startup code into FLASH memory */
   /* The program code and other data goes into FLASH */
   .text :
   {
     . = ALIGN(4);
+    KEEP(*(.isr_vector))// ISR table
+    . = ALIGN(4);
     *(.text)           /* .text sections (code) */
+    . = ALIGN(4);
     *(.text*)          /* .text* sections (code) */
+    . = ALIGN(4);
     *(.glue_7)         /* glue arm to thumb code */
     *(.glue_7t)        /* glue thumb to arm code */
     *(.eh_frame)
@@ -71,7 +57,7 @@ SECTIONS
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
-  } >FLASH
+  } >SYS_MAIN_FLASH
 
   /* Constant data goes into FLASH */
   .rodata :
@@ -80,35 +66,35 @@ SECTIONS
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
-  } >FLASH
+  } >SYS_MAIN_FLASH
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >SYS_MAIN_FLASH
   .ARM : {
     __exidx_start = .;
     *(.ARM.exidx*)
     __exidx_end = .;
-  } >FLASH
+  } >SYS_MAIN_FLASH
 
   .preinit_array     :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASH
+  } >SYS_MAIN_FLASH
   .init_array :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASH
+  } >SYS_MAIN_FLASH
   .fini_array :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASH
+  } >SYS_MAIN_FLASH
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -123,12 +109,11 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM AT> FLASH
+  } >SYS_MAIN_MEMORY AT> SYS_MAIN_FLASH
 
-  
   /* Uninitialized data section */
   . = ALIGN(4);
-  .bss :
+  .bss (NOLOAD) :
   {
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
@@ -140,10 +125,10 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
-  } >RAM
+  } >SYS_MAIN_MEMORY
 
   /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
+  ._user_heap_stack (NOLOAD) :
   {
     . = ALIGN(8);
     PROVIDE ( end = . );
@@ -151,9 +136,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM
-
-  
+  } >SYS_MAIN_MEMORY
 
   /* Remove information from the standard libraries */
   /DISCARD/ :
@@ -165,4 +148,3 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-

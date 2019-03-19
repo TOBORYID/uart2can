@@ -14,14 +14,28 @@ BuildPath = $(TopPath)/Build
 OutPath = $(TopPath)/Output
 
 # Include Dirs
-INCS = -I$(TopPath)/StdPeriph_Driver/inc \
-       -I$(TopPath)/inc \
+INCS = -I$(TopPath)/inc \
+       -I$(TopPath)/sysconfig \
        -I$(TopPath)/kylink \
-       -I$(TopPath)/CMSIS/device \
-       -I$(TopPath)/CMSIS/core
+       -I$(TopPath)/driver/cmsis/device \
+       -I$(TopPath)/driver/cmsis/core \
+       -I$(TopPath)/driver/stdriver/inc \
+
+LD_INCS = -I$(TopPath)/sysconfig
 
 # Global definitions
-DEFS = -DSTM32 -DSTM32F0 -DSTM32F042G6Ux -DDEBUG -DSTM32F042 -DUSE_STDPERIPH_DRIVER
+DEFS = -DSTM32 -DSTM32F0 -DSTM32F042G6Ux -DSTM32F042 -DUSE_STDPERIPH_DRIVER
+
+# Other configuration
+CFGS = -mthumb -Dprintf=iprintf -fno-exceptions
+LD_CFGS = --specs=nano.specs
+
+ifeq ($(D), 1)
+# Debug information
+DBGS = -DDEBUG -g3
+else
+DBGS =
+endif
 
 # Set verbosity
 ifeq ($(V), 1)
@@ -74,7 +88,7 @@ all: $(ProjName).elf | $(BuildPath)
 -include startup/subdir.mk
 -include src/subdir.mk
 -include kylink/subdir.mk
--include StdPeriph_Driver/src/subdir.mk
+-include driver/stdriver/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -101,10 +115,11 @@ $(OutPath):
 $(OBJ_DIRS):
 	$(MKDIR) -p $@
 
-$(ProjName).elf: $(OBJS) $(TopPath)/LinkerScript.ld | $(OutPath)
+$(ProjName).elf: $(OBJS) | $(OutPath)
 	@echo ''
 	@echo ' Building $@'
-	$(CC) -mcpu=cortex-m0 -mthumb -mfloat-abi=soft -T$(TopPath)/LinkerScript.ld -Wl,-Map=$(OutPath)/output.map -Wl,--gc-sections -o $(OutPath)/$(ProjName).elf @"obj_list.txt" $(LIBS) -lm
+	$(CPP) -P -E $(LD_INCS) $(TopPath)/LinkerScript.ld.S > $(BuildPath)/LinkerScript.lds
+	$(CC) -mcpu=cortex-m0 -mthumb -mfloat-abi=soft -T$(BuildPath)/LinkerScript.lds $(LD_CFGS) -Wl,-Map=$(OutPath)/output.map -Wl,--gc-sections -o $(OutPath)/$(ProjName).elf @"obj_list.txt" $(LIBS) -lm
 	$(MAKE) $(MAKEFLAGS) post-build
 
 # Other Targets

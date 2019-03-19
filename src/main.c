@@ -47,7 +47,7 @@ static void CAN_MsgPrepare(void);
   * @param  None
   * @retval None
   */
-int main(void)
+int main_app(void)
 {
   /*!< At this stage the microcontroller clock setting is already configured, 
        this is done through SystemInit() function which is called from startup
