@@ -13,10 +13,7 @@
 #define __TIMERCOUNTER_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx.h"
-#include "stm32f0xx_tim.h"
-#include "stm32f0xx_rcc.h"
-#include "stm32f0xx_misc.h"
+#include "SysConfig.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -28,6 +25,12 @@ uint16_t _Get_Ticks(void);
 uint32_t _Get_Micros(void);
 uint32_t _Get_Millis(void);
 uint32_t _Get_Secnds(void);
+
+void _delay_us(uint32_t us);
+void _delay_ms(uint32_t ms);
+
+void _MeasureTimeStart(void);
+uint32_t _GetTimeMeasured(void);
 
 #endif /* __TIMERCOUNTER_H */
 

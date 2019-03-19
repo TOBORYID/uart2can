@@ -25,4 +25,6 @@
 //#endif
 //#endif
 
+#define SYSTEM_TIMER_INT_PRIORITY                (0)
+
 #endif /* SYSCONFIG_H_ */

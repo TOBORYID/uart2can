@@ -16,6 +16,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static uint32_t OverFlowCnt = 0;
+static uint32_t TimeMeasure = 0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -40,7 +41,7 @@ void _TimeTicksInit(void)
 
 	/* NVIC configuration *******************************************************/
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 0x2;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = SYSTEM_TIMER_INT_PRIORITY;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -86,6 +87,42 @@ uint32_t _Get_Millis(void)
 uint32_t _Get_Secnds(void)
 {
 	return ((_Get_Millis()) / 1000);
+}
+
+/*
+ * delay a time in microsecond.
+ */
+void _delay_us(uint32_t us)
+{
+	uint32_t _start = _Get_Micros();
+	uint32_t _us = us;
+	uint32_t _cur = _start;
+	do {
+		_cur = _Get_Micros();
+	} while((_cur - _start) < _us);
+}
+
+/*
+ * delay a time in millisecond.
+ */
+void _delay_ms(uint32_t ms)
+{
+	uint32_t _start = _Get_Millis();
+	uint32_t _ms = ms;
+	uint32_t _cur = _start;
+	do {
+		_cur = _Get_Millis();
+	} while((_cur - _start) < _ms);
+}
+
+void _MeasureTimeStart(void)
+{
+  TimeMeasure = _Get_Micros();
+}
+
+uint32_t _GetTimeMeasured(void)
+{
+  return (_Get_Micros() - TimeMeasure);
 }
 
 /**
