@@ -115,8 +115,8 @@ void StartThread(void const * arg)
 			LastTime = CurrentTime;
 		} else if((CurrentTime - LastTime) > 60000) {
 			DataUpdateFlag = 1;
-			LED_R_ON();
-			LED_B_ON();
+			LED_R_TOG();
+			LED_B_TOG();
 			LastTime = CurrentTime;
 		}
 
