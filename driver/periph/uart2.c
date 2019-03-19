@@ -182,6 +182,14 @@ void uart2_TxBytesDMA(uint8_t *p, uint32_t l)
 	}
 }
 
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+void uart2_flush(void)
+{
+	while(_tx_comp_flag == 0) {}
+}
+#pragma GCC pop_options
+
 uint8_t uart2_pullByte(uint8_t *p)
 {
 	if(out_ptr != in_ptr) {

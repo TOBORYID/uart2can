@@ -14,7 +14,7 @@
 #include "boardconfig.h"
 #include "TimerCounter.h"
 
-#define CAN_MASTER_MODE                     (0)
+#define CAN_MASTER_MODE                     (1)
 
 #define PRINT_LOG_ENABLE                    (1)
 

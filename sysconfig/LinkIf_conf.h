@@ -9,7 +9,6 @@
 #define LINKIF_CONF_H_
 
 #include "SysConfig.h"
-#include "board_config.h"
 
 #define HARD_DEV_ID                    (0x11) /* for UART2CAN board */
 

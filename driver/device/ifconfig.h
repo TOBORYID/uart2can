@@ -13,7 +13,7 @@
 #include "uart2.h"
 
 #if PRINT_LOG_ENABLE
-#define LOG_PORT_PUT_CHAR                   uart2_TxChar
+#define LOG_PORT_PUT_CHAR                   uart2_TxByte
 #endif
 
 #endif /* BOARD_CONFIG_H_ */

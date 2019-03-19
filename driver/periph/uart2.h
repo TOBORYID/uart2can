@@ -50,6 +50,7 @@ void uart2_init(
 void uart2_TxByte(uint8_t c);
 void uart2_TxBytes(uint8_t *p, uint32_t l);
 #if UART2_DMA_ENABLE
+void uart2_flush(void);
 void uart2_TxBytesDMA(uint8_t *p, uint32_t l);
 uint8_t uart2_pullByte(uint8_t *p);
 uint32_t uart2_pullBytes(uint8_t *p, uint32_t l);

@@ -71,9 +71,9 @@ void StartThread(void const * arg)
 		CurrentTime = _Get_Micros();
 		if(GetMsgUpdateFlag()) {
 
-			uart2_TxBuffer((uint8_t *)"id(", 3);
+			uart2_TxBytesDMA((uint8_t *)"id(", 3); uart2_flush();
 			printID(pRxMessage->StdId);
-			uart2_TxBuffer((uint8_t *)"): ", 3);
+			uart2_TxBytesDMA((uint8_t *)"): ", 3); uart2_flush();
 			_tof_data.uData[0] = pRxMessage->Data[0];
 			_tof_data.uData[1] = pRxMessage->Data[1];
 			_tof_data.uData[2] = pRxMessage->Data[2];
@@ -82,11 +82,11 @@ void StartThread(void const * arg)
 			_ult_data.uData[1] = pRxMessage->Data[5];
 			_ult_data.uData[2] = pRxMessage->Data[6];
 			_ult_data.uData[3] = pRxMessage->Data[7];
-			uart2_TxBuffer((uint8_t *)"tof: ", 5);
+			uart2_TxBytesDMA((uint8_t *)"tof: ", 5); uart2_flush();
 			printDist(_tof_data.fData);
-			uart2_TxBuffer((uint8_t *)"cm, usc: ", 9);
+			uart2_TxBytesDMA((uint8_t *)"cm, usc: ", 9); uart2_flush();
 			printDist(_ult_data.fData);
-			uart2_TxBuffer((uint8_t *)"cm                 \r", 20);
+			uart2_TxBytesDMA((uint8_t *)"cm                 \r", 20); uart2_flush();
 
 			LED_B_TOG();
 			LED_R_ON();
@@ -94,7 +94,7 @@ void StartThread(void const * arg)
 		}
 		if((CurrentTime - LastTime) > 500000) {
 			LED_R_TOG();
-			uart2_TxBuffer((uint8_t *)"\e[0;31mLOST.\n\e[0m", 17);
+			uart2_TxBytesDMA((uint8_t *)"\e[0;31mLOST.\n\e[0m", 17); uart2_flush();
 			LastTime = CurrentTime;
 		}
 #else
@@ -141,7 +141,7 @@ static void printID(uint32_t id)
 {
 	int c = 0;
 	if(id < 0x5A0) {
-		uart2_TxBuffer((uint8_t *)"??", 2);
+		uart2_TxBytes((uint8_t *)"??", 2);
 	} else {
 		id -= 0x5A0;
 		c = id;

@@ -14,16 +14,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "SysConfig.h"
-#include "TimerCounter.h"
-#include "board_config.h"
-
-#include "stm32f0xx.h"
-#include "stm32f0xx_tim.h"
-#include "stm32f0xx_rcc.h"
-#include "stm32f0xx_misc.h"
-#include "stm32f0xx_gpio.h"
-#include "stm32f0xx_exti.h"
-#include "stm32f0xx_syscfg.h"
+#include "ifconfig.h"
 
 #if (USC_MODE == USC_MODE_UART)
 #include "kyLink.h"

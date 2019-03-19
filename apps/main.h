@@ -14,7 +14,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "SysConfig.h"
-#include "board_config.h"
+#include "ifconfig.h"
 
 #include "LED.h"
 #include "TOF.h"
