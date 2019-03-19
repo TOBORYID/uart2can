@@ -98,6 +98,13 @@ SECTIONS
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
+#if BOOT_ENABLED
+  .ram_isr (NOLOAD) :
+  {
+    . = ALIGN(4);
+    . = . + SYS_VECTOR_SIZE;
+  } >SYS_MAIN_MEMORY
+#endif /* BOOT_ENABLED */
 
   .usc_uart_cache (NOLOAD) :
   {
