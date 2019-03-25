@@ -70,7 +70,7 @@ uint8_t GetNewUltData(float *d)
 			kylink_decode(&USC_PORT_HANDLE, read_buf[idx]);
 		}
 		if(kyLinkCheckUpdate(&USC_PORT_HANDLE) == kyTRUE) {
-			*d = pRx->FormatData.PacketData.TypeData.USC_DIST_MM * 0.1f;
+			*d = pRx->FormatData.PacketData.TypeData.USC_DIST_CM;
 			return 1;
 		}
 	}

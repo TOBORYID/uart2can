@@ -14,6 +14,6 @@
 
 #define KYLINK_USER_TYPE               TYPE_USC_INFO_Resp = 0xC1,
 
-#define KYLINK_USER_TYPE_DATA          uint16_t USC_DIST_MM;
+#define KYLINK_USER_TYPE_DATA          uint16_t USC_DIST_CM;
 
 #endif /* LINKIF_CONF_H_ */
