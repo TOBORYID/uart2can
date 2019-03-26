@@ -15,8 +15,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static uint32_t OverFlowCnt = 0;
-static uint32_t TimeMeasure = 0;
+static __IO uint32_t OverFlowCnt = 0;
+static __IO uint32_t TimeMeasure = 0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
