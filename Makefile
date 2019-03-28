@@ -137,6 +137,9 @@ BINARY := $(OutPath)/$(ProjName).bin
 flash: all
 	@st-flash --reset write $(BINARY) 0x08000000
 
+jflash: all
+	@JLinkExe -CommanderScript f042.jlink
+
 monitor:
 	@./../tools/monitor/Debug/monitor
 
