@@ -13,7 +13,7 @@ static uint32_t _tx_comp_flag = 1;
 static DMA_InitTypeDef DMA_InitStructure;
 
 static uint32_t in_ptr = 0, out_ptr = 0;
-extern uint8_t UART_RX_CACHE[UART_RX_CACHE_SIZE];
+extern uint8_t UART2_RX_CACHE[UART_RX_CACHE_SIZE];
 
 static void dma_config(void);
 #else
@@ -124,7 +124,7 @@ static void dma_config(void)
 
 	DMA_InitStructure.DMA_BufferSize = UART_RX_CACHE_SIZE;
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)UART_RX_CACHE;
+	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)UART2_RX_CACHE;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&(UART2->RDR);
@@ -193,7 +193,7 @@ void uart2_flush(void)
 uint8_t uart2_pullByte(uint8_t *p)
 {
 	if(out_ptr != in_ptr) {
-		*p = UART_RX_CACHE[out_ptr];
+		*p = UART2_RX_CACHE[out_ptr];
 		if(++ out_ptr == UART_RX_CACHE_SIZE) {
 			out_ptr = 0;
 		}
@@ -214,7 +214,7 @@ uint32_t uart2_pullBytes(uint8_t *p, uint32_t l)
 	if(len > l) len = l;
 	cnt = len;
 	while(cnt --) {
-		*p = UART_RX_CACHE[out_ptr];
+		*p = UART2_RX_CACHE[out_ptr];
 		p ++;
 		if(++ out_ptr == UART_RX_CACHE_SIZE) {
 			out_ptr = 0;
