@@ -24,7 +24,7 @@ static KYLINK_CORE_HANDLE USC_PORT_HANDLE;
 static kyLinkPackageDef *pRx = 0;
 
 static uint8_t read_len;
-static uint8_t read_buf[8];
+static uint8_t read_buf[12];
 #endif
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,7 +65,7 @@ uint8_t GetNewUltData(float *d)
 		return 1;
 	}
 #else
-	if((read_len = uart2_pullBytes(read_buf, 8)) > 0) {
+	if((read_len = uart2_pullBytes(read_buf, 12)) > 0) {
 		for(uint8_t idx = 0; idx < read_len; idx ++) {
 			kylink_decode(&USC_PORT_HANDLE, read_buf[idx]);
 		}

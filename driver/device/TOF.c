@@ -24,7 +24,7 @@ static TOF_ORIGIN_DATA TOF_DATA = {0};
 #endif /* TOF_PORT_CON_USC */
 
 static uint8_t read_len;
-static uint8_t read_buf[8];
+static uint8_t read_buf[12];
 /* Private function prototypes -----------------------------------------------*/
 #if !TOF_PORT_CON_USC
 static void _rc_data_decode(uint8_t data);
@@ -53,7 +53,7 @@ void TOFDriverInit(void)
   */
 uint8_t GetNewTOFData(float *d)
 {
-	if((read_len = uart1_pullBytes(read_buf, 8)) > 0) {
+	if((read_len = uart1_pullBytes(read_buf, 12)) > 0) {
 		for(uint8_t idx = 0; idx < read_len; idx ++) {
 #if TOF_PORT_CON_USC
 			kylink_decode(&USC_PORT_HANDLE, read_buf[idx]);
