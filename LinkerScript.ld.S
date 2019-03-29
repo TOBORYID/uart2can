@@ -106,10 +106,17 @@ SECTIONS
   } >SYS_MAIN_MEMORY
 #endif /* BOOT_ENABLED */
 
-  .usc_uart_cache (NOLOAD) :
+  .uart1_cache (NOLOAD) :
   {
     . = ALIGN(4);
-    UART_RX_CACHE = .;
+    UART1_RX_CACHE = .;
+    . = . + UART_RX_CACHE_SIZE;
+  } >SYS_MAIN_MEMORY
+
+  .uart2_cache (NOLOAD) :
+  {
+    . = ALIGN(4);
+    UART2_RX_CACHE = .;
     . = . + UART_RX_CACHE_SIZE;
   } >SYS_MAIN_MEMORY
 
