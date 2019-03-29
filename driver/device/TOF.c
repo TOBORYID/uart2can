@@ -17,9 +17,12 @@
 /* Private variables ---------------------------------------------------------*/
 static uint8_t _tof_data_update = 0;
 static TOF_ORIGIN_DATA TOF_DATA = {0};
+
+static uint8_t read_len;
+static uint8_t read_buf[8];
 /* Private function prototypes -----------------------------------------------*/
-static void usart_config(void);
 static void _rc_data_decode(uint8_t data);
+static uint16_t crc16(uint8_t *pBuffer, uint16_t len);
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -29,69 +32,7 @@ static void _rc_data_decode(uint8_t data);
   */
 void TOFDriverInit(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-
-	/* Enable GPIO clock */
-	RCC_AHBPeriphClockCmd(TOF_USART_GPIO_CLK, ENABLE);
-
-	/* Connect pin to Periph */
-	GPIO_PinAFConfig(TOF_USART_GPIO, TOF_USART_TxPin_AF, TOF_USART_AF);
-	GPIO_PinAFConfig(TOF_USART_GPIO, TOF_USART_RxPin_AF, TOF_USART_AF);
-
-	/* Configure TOF_USART pins as AF pushpull */
-	GPIO_InitStructure.GPIO_Pin = TOF_USART_RxPin | TOF_USART_TxPin;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(TOF_USART_GPIO, &GPIO_InitStructure);
-
-	usart_config();
-}
-
-/**
-  * @brief  Configure the UART.
-  * @param  None
-  * @retval None
-  */
-static void usart_config(void)
-{
-	USART_InitTypeDef USART_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
-
-	/* Enable TOF_USART Clock */
-	RCC_APB2PeriphClockCmd(TOF_USART_CLK, ENABLE);
-
-	/* TOF USART configuration -------------------------------------------*/
-  /* TOF USART configured as follow:
-        - BaudRate = 115200
-        - Word Length = 8 Bits
-        - Two Stop Bit
-        - Even parity
-        - Hardware flow control disabled (RTS and CTS signals)
-        - Only Receive enabled
-  */
-
-	USART_InitStructure.USART_BaudRate = 115200;
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_2;
-	USART_InitStructure.USART_Parity = USART_Parity_Even;
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode = USART_Mode_Rx;
-	/* Configure TOF_USART */
-	USART_Init(TOF_USART, &USART_InitStructure);
-
-	/* Enable the TOF_USART Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = TOF_USART_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 0x0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
-	/* Enable the TOF_USART Receive Interrupt */
-	USART_ITConfig(TOF_USART, USART_IT_RXNE, ENABLE);
-
-	/* Enable TOF_USART */
-	USART_Cmd(TOF_USART, ENABLE);
+	uart1_init();
 }
 
 /**
@@ -101,10 +42,15 @@ static void usart_config(void)
   */
 uint8_t GetNewTOFData(float *d)
 {
-	if(_tof_data_update) {
-		_tof_data_update = 0;
-		*d = (((uint16_t)TOF_DATA.HighByte << 8) | TOF_DATA.LowByte) / 10.0f;
-		return 1;
+	if((read_len = uart1_pullBytes(read_buf, 8)) > 0) {
+		for(uint8_t idx = 0; idx < read_len; idx ++) {
+			_rc_data_decode(read_buf[idx]);
+		}
+		if(_tof_data_update) {
+			_tof_data_update = 0;
+			*d = (((uint16_t)TOF_DATA.HighByte << 8) | TOF_DATA.LowByte) / 10.0f;
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -158,18 +104,23 @@ static void _rc_data_decode(uint8_t data)
 }
 
 /**
-  * @brief  This function handles the interrupt request from TOF port.
-  * @param  None
-  * @retval None
-  */
-void TOF_USART_IRQHandler(void)
+ * @brief  compute crc16.
+ * @param  pBuffer: pointer to the buffer.
+ * @param  len: buffer length.
+ * @retval compute resualt.
+ */
+static uint16_t crc16(uint8_t *pBuffer, uint16_t len)
 {
-	USART_ClearFlag(TOF_USART, USART_FLAG_ORE | USART_FLAG_PE);
-	if(USART_GetITStatus(TOF_USART, USART_IT_RXNE) != RESET) {
-		USART_ClearFlag(TOF_USART, USART_FLAG_RXNE);
-		USART_ClearITPendingBit(TOF_USART, USART_IT_RXNE);
-		_rc_data_decode(USART_ReceiveData(TOF_USART));
+	uint8_t crcHi = 0xFF;
+	uint8_t crcLo = 0xFF;
+	uint16_t index, i;
+	for(i = 0; i < len; i ++)
+	{
+		index = crcLo ^ *( pBuffer++ );
+		crcLo = (uint8_t)( crcHi ^ (crc16Table[index] & 0xff));
+		crcHi = crc16Table[index] >> 8;
 	}
+	return (uint16_t)(crcHi << 8 | crcLo);
 }
 
 /******************************** END OF FILE *********************************/
