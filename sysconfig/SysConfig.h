@@ -14,19 +14,13 @@
 #include "boardconfig.h"
 #include "TimerCounter.h"
 
-#define CAN_MASTER_MODE                     (1)
+#define DEVICE_CAN_ADDR                     (0)
 
-#define PRINT_LOG_ENABLE                    (1)
-
-//#if !(CAN_MASTER_MODE)
-//#if !(PRINT_LOG_ENABLE)
+#define TOF_PORT_CON_USC                    (0)
 
 #define USC_MODE_ECHO                       (0)
 #define USC_MODE_UART                       (1)
 #define USC_MODE                            USC_MODE_UART
-
-//#endif
-//#endif
 
 #define FREERTOS_ENABLED               (0)
 #if FREERTOS_ENABLED
