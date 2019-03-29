@@ -15,14 +15,21 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+#if TOF_PORT_CON_USC
+static KYLINK_CORE_HANDLE USC_PORT_HANDLE;
+static kyLinkPackageDef *pRx = 0;
+#else
 static uint8_t _tof_data_update = 0;
 static TOF_ORIGIN_DATA TOF_DATA = {0};
+#endif /* TOF_PORT_CON_USC */
 
 static uint8_t read_len;
 static uint8_t read_buf[8];
 /* Private function prototypes -----------------------------------------------*/
+#if !TOF_PORT_CON_USC
 static void _rc_data_decode(uint8_t data);
 static uint16_t crc16(uint8_t *pBuffer, uint16_t len);
+#endif /* !TOF_PORT_CON_USC */
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -33,6 +40,10 @@ static uint16_t crc16(uint8_t *pBuffer, uint16_t len);
 void TOFDriverInit(void)
 {
 	uart1_init();
+#if TOF_PORT_CON_USC
+	kyLinkInit(&USC_PORT_HANDLE, NULL);
+	pRx = GetRxPackage(&USC_PORT_HANDLE);
+#endif /* TOF_PORT_CON_USC */
 }
 
 /**
@@ -44,17 +55,29 @@ uint8_t GetNewTOFData(float *d)
 {
 	if((read_len = uart1_pullBytes(read_buf, 8)) > 0) {
 		for(uint8_t idx = 0; idx < read_len; idx ++) {
+#if TOF_PORT_CON_USC
+			kylink_decode(&USC_PORT_HANDLE, read_buf[idx]);
+#else
 			_rc_data_decode(read_buf[idx]);
+#endif /* TOF_PORT_CON_USC */
 		}
+#if TOF_PORT_CON_USC
+		if(kyLinkCheckUpdate(&USC_PORT_HANDLE) == kyTRUE) {
+			*d = pRx->FormatData.PacketData.TypeData.USC_DIST_CM;
+			return 1;
+		}
+#else
 		if(_tof_data_update) {
 			_tof_data_update = 0;
 			*d = (((uint16_t)TOF_DATA.HighByte << 8) | TOF_DATA.LowByte) / 10.0f;
 			return 1;
 		}
+#endif /* TOF_PORT_CON_USC */
 	}
 	return 0;
 }
 
+#if !TOF_PORT_CON_USC
 /**
   * @brief  com package decode function.
   * @param  data: byte read from module.
@@ -122,5 +145,6 @@ static uint16_t crc16(uint8_t *pBuffer, uint16_t len)
 	}
 	return (uint16_t)(crcHi << 8 | crcLo);
 }
+#endif /* !TOF_PORT_CON_USC */
 
 /******************************** END OF FILE *********************************/

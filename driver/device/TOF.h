@@ -16,7 +16,12 @@
 #include "SysConfig.h"
 #include "ifconfig.h"
 
+#if TOF_PORT_CON_USC
+#include "kyLink.h"
+#endif /* TOF_PORT_CON_USC */
+
 /* Exported constants --------------------------------------------------------*/
+#if !TOF_PORT_CON_USC
 static uint16_t const crc16Table[256] =
 {
 	0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
@@ -61,7 +66,7 @@ typedef struct {
 	uint8_t HighCRC;
 	uint8_t LowCRC;
 } __attribute__((packed)) TOF_ORIGIN_DATA;
-
+#endif /* !TOF_PORT_CON_USC */
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void TOFDriverInit(void);

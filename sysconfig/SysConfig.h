@@ -18,7 +18,7 @@
 
 #define DEVICE_CAN_ADDR                     (0)
 
-#define TOF_PORT_CON_USC                    (0)
+#define TOF_PORT_CON_USC                    (1)
 
 #define USC_MODE_ECHO                       (0)
 #define USC_MODE_UART                       (1)
