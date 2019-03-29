@@ -30,7 +30,6 @@
 
 "Build/driver/device/LED.o"
 "Build/driver/device/TOF.o"
-"Build/driver/device/CRC16.o"
 "Build/driver/device/UltraSonic.o"
 
 "Build/apps/main.o"

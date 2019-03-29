@@ -5,19 +5,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-./driver/device/CRC16.c \
 ./driver/device/LED.c \
 ./driver/device/TOF.c \
 ./driver/device/UltraSonic.c
 
 OBJS += \
-$(BuildPath)/driver/device/CRC16.o \
 $(BuildPath)/driver/device/LED.o \
 $(BuildPath)/driver/device/TOF.o \
 $(BuildPath)/driver/device/UltraSonic.o
 
 C_DEPS += \
-$(BuildPath)/driver/device/CRC16.d \
 $(BuildPath)/driver/device/LED.d \
 $(BuildPath)/driver/device/TOF.d \
 $(BuildPath)/driver/device/UltraSonic.d

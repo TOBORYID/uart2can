@@ -14,6 +14,8 @@
 #include "boardconfig.h"
 #include "TimerCounter.h"
 
+#include "SysDataTypes.h"
+
 #define DEVICE_CAN_ADDR                     (0)
 
 #define TOF_PORT_CON_USC                    (0)
@@ -32,8 +34,11 @@
 /* Interrupt Priority Table */
 #define SYSTEM_TIMER_INT_PRIORITY      (0)
 
-#define UART2_RX_INT_PRIORITY          (0)
-#define UART2_DMA_INT_PRIORITY         (0)
+#define UART1_RX_INT_PRIORITY          (1)
+#define UART1_DMA_INT_PRIORITY         (1)
+
+#define UART2_RX_INT_PRIORITY          (1)
+#define UART2_DMA_INT_PRIORITY         (1)
 
 #if SYSTICK_ENABLE
 #define SYSTICK_INT_PRIORITY           (3)
