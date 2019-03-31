@@ -45,6 +45,13 @@ void StartThread(void const * arg)
 
 	CAN_MsgPrepare();
 
+	for(int i = 0; i < DEVICE_CAN_ADDR + 1; i ++) {
+		LED_B_ON();
+		_delay_ms(50);
+		LED_B_OFF();
+		_delay_ms(450);
+	}
+
 	CurrentTime = _Get_Micros();
 	LastTime = CurrentTime;
 
