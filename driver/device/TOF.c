@@ -41,7 +41,7 @@ void TOFDriverInit(void)
 {
 	uart1_init();
 #if TOF_PORT_CON_USC
-	kyLinkInit(&USC_PORT_HANDLE, NULL);
+	kyLinkInit(&USC_PORT_HANDLE, kyNULL);
 	pRx = GetRxPackage(&USC_PORT_HANDLE);
 #endif /* TOF_PORT_CON_USC */
 }

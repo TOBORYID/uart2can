@@ -46,7 +46,7 @@ void UltDriverInit(void)
   GPIO_Config();
 #else
   uart2_init();
-  kyLinkInit(&USC_PORT_HANDLE, NULL);
+  kyLinkInit(&USC_PORT_HANDLE, kyNULL);
   pRx = GetRxPackage(&USC_PORT_HANDLE);
 #endif
 }
